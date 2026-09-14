@@ -11,6 +11,7 @@ from selenium.common.exceptions import (
     TimeoutException,
     WebDriverException,
 )
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support import expected_conditions as conditions
@@ -98,11 +99,16 @@ class WordstatBrowserGateway:
 
     def _create_driver(self) -> WebDriver:
         options = webdriver.ChromeOptions()
+        options.binary_location = "/usr/bin/chromium"
         options.add_argument("--lang=ru-RU")
         options.add_argument("--window-size=1440,1000")
         options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--no-sandbox")
         options.add_argument("--user-data-dir=/var/lib/wordstat-browser/profile")
-        return webdriver.Chrome(options=options)
+        return webdriver.Chrome(
+            service=Service(executable_path="/usr/bin/chromedriver"),
+            options=options,
+        )
 
     @staticmethod
     def _page_ready_or_blocked(driver: WebDriver) -> bool:
