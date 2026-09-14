@@ -37,12 +37,12 @@ curl --fail --silent http://127.0.0.1:8087/health
 Through the subdomain:
 
 ```bash
-curl --get 'https://wordstat.mydomain.ru/wordstat/top' \
+curl --get 'https://wordstat.mydomain.ru/top' \
   --data-urlencode 'q=купить базу клиентов' \
   --header 'Authorization: Bearer YOUR_PROXY_API_KEY'
 ```
 
-For the path-based Caddy variant, use
+For the path-based Caddy variant, set `PUBLIC_BASE_URL` and use
 `https://mydomain.ru/api/wordstat/top` instead.
 
 Successful responses use numeric counts:

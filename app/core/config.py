@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     YANDEX_TIMEOUT_SECONDS: float = Field(default=15, gt=0, le=60)
     WORDSTAT_NUM_PHRASES: int = Field(default=50, ge=1, le=2_000)
     LOG_LEVEL: str = "INFO"
+    PUBLIC_BASE_URL: HttpUrl | None = None
     YANDEX_WORDSTAT_URL: HttpUrl = HttpUrl(
         "https://searchapi.api.cloud.yandex.net/v2/wordstat/topRequests"
     )
@@ -37,4 +38,3 @@ def get_settings() -> Settings:
     settings = Settings()
     settings.validate_secrets()
     return settings
-

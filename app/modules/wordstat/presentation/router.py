@@ -9,7 +9,7 @@ from app.modules.wordstat.application.use_cases import GetWordstatTop
 from app.modules.wordstat.presentation.schemas import PhraseStatResponse, WordstatTopResponse
 
 
-router = APIRouter(prefix="/wordstat", tags=["wordstat"])
+router = APIRouter(tags=["wordstat"])
 
 
 def get_wordstat_use_case(request: Request) -> GetWordstatTop:

@@ -5,8 +5,7 @@ wordstat.mydomain.ru {
 }
 
 # Variant B: expose the API below an existing site. Use this block inside that
-# site's existing braces; handle_path strips /api before proxying.
-# handle_path /api/* {
+# site's existing braces. PUBLIC_BASE_URL must match this external prefix.
+# handle_path /api/wordstat/* {
 #     reverse_proxy 127.0.0.1:8087
 # }
-

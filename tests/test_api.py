@@ -38,7 +38,7 @@ def make_client() -> TestClient:
 
 def test_top_requires_bearer_token() -> None:
     with make_client() as client:
-        response = client.get("/wordstat/top", params={"q": "test"})
+        response = client.get("/top", params={"q": "test"})
 
     assert response.status_code == 401
     assert response.json()["error"]["code"] == "unauthorized"
@@ -47,7 +47,7 @@ def test_top_requires_bearer_token() -> None:
 def test_top_returns_clean_json() -> None:
     with make_client() as client:
         response = client.get(
-            "/wordstat/top",
+            "/top",
             params={"q": "купить базу клиентов"},
             headers={"Authorization": f"Bearer {'p' * 32}"},
         )
@@ -64,7 +64,7 @@ def test_top_returns_clean_json() -> None:
 def test_top_rejects_empty_query() -> None:
     with make_client() as client:
         response = client.get(
-            "/wordstat/top",
+            "/top",
             params={"q": ""},
             headers={"Authorization": f"Bearer {'p' * 32}"},
         )
@@ -76,7 +76,7 @@ def test_top_rejects_empty_query() -> None:
 def test_top_rejects_whitespace_only_query() -> None:
     with make_client() as client:
         response = client.get(
-            "/wordstat/top",
+            "/top",
             params={"q": "   "},
             headers={"Authorization": f"Bearer {'p' * 32}"},
         )
@@ -91,6 +91,7 @@ def test_openapi_contract_is_ready_for_gpt_action() -> None:
 
     assert response.status_code == 200
     schema = response.json()
-    operation = schema["paths"]["/wordstat/top"]["get"]
+    operation = schema["paths"]["/top"]["get"]
     assert operation["operationId"] == "getWordstatTop"
     assert operation["security"] == [{"HTTPBearer": []}]
+    assert schema["servers"] == [{"url": "https://goodpapa12.com/api/wordstat"}]

@@ -33,9 +33,16 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 
 def create_app() -> FastAPI:
+    settings = get_settings()
+    servers = (
+        [{"url": str(settings.PUBLIC_BASE_URL).rstrip("/")}]
+        if settings.PUBLIC_BASE_URL
+        else None
+    )
     application = FastAPI(
         title="Wordstat Proxy API",
         version="1.0.0",
+        servers=servers,
         docs_url=None,
         redoc_url=None,
         lifespan=lifespan,
@@ -76,4 +83,3 @@ def create_app() -> FastAPI:
 
 
 app = create_app()
-
