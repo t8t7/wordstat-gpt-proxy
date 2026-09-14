@@ -1,0 +1,13 @@
+goodpapa12.com {
+    handle_path /api/wordstat/* {
+        reverse_proxy 127.0.0.1:8087
+    }
+
+    handle {
+        reverse_proxy 127.0.0.1:4321
+    }
+}
+
+www.goodpapa12.com {
+    redir https://goodpapa12.com{uri} permanent
+}
