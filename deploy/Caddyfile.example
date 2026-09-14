@@ -1,0 +1,12 @@
+# Variant A: Caddy runs on the VPS host. Replace the domain, then merge this block
+# into the existing Caddyfile and run `caddy validate` before reloading.
+wordstat.mydomain.ru {
+    reverse_proxy 127.0.0.1:8087
+}
+
+# Variant B: expose the API below an existing site. Use this block inside that
+# site's existing braces; handle_path strips /api before proxying.
+# handle_path /api/* {
+#     reverse_proxy 127.0.0.1:8087
+# }
+
