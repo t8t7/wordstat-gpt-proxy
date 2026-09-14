@@ -1,7 +1,6 @@
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
 
-import httpx
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -11,7 +10,7 @@ from app.core.config import get_settings
 from app.core.errors import AppError
 from app.core.logging import configure_logging, request_logging_middleware
 from app.modules.wordstat.application.use_cases import GetWordstatTop
-from app.modules.wordstat.infrastructure.yandex_gateway import YandexWordstatGateway
+from app.modules.wordstat.infrastructure.browser_gateway import WordstatBrowserGateway
 from app.modules.wordstat.presentation.router import router as wordstat_router
 
 
@@ -19,16 +18,14 @@ from app.modules.wordstat.presentation.router import router as wordstat_router
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
     configure_logging(settings.LOG_LEVEL)
-    http_client = httpx.AsyncClient(timeout=settings.YANDEX_TIMEOUT_SECONDS)
     redis = Redis.from_url(settings.REDIS_URL, decode_responses=True)
+    browser_gateway = WordstatBrowserGateway(settings)
     app.state.redis = redis
-    app.state.get_wordstat_top = GetWordstatTop(
-        YandexWordstatGateway(http_client, settings)
-    )
+    app.state.get_wordstat_top = GetWordstatTop(browser_gateway)
     try:
         yield
     finally:
-        await http_client.aclose()
+        await browser_gateway.close()
         await redis.aclose()
 
 

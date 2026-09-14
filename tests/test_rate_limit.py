@@ -21,8 +21,6 @@ class FakeRedis:
 
 def make_settings(limit: int = 2) -> Settings:
     return Settings(
-        YANDEX_API_KEY="yandex-secret",
-        YANDEX_FOLDER_ID="folder-id",
         PROXY_API_KEY="p" * 32,
         RATE_LIMIT_REQUESTS=limit,
     )
@@ -56,4 +54,3 @@ async def test_rate_limit_fails_closed_when_redis_is_unavailable() -> None:
 
     assert raised.value.status_code == 503
     assert raised.value.code == "rate_limiter_unavailable"
-

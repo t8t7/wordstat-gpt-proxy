@@ -1,8 +1,6 @@
 import os
 from fastapi.testclient import TestClient
 
-os.environ.setdefault("YANDEX_API_KEY", "test-yandex-key")
-os.environ.setdefault("YANDEX_FOLDER_ID", "test-folder")
 os.environ.setdefault("PROXY_API_KEY", "p" * 32)
 
 from app.core.rate_limit import enforce_rate_limit

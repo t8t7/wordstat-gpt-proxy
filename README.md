@@ -1,7 +1,8 @@
 # Wordstat Proxy API
 
-Authenticated proxy for the official Yandex Search API Wordstat `GetTop` method.
-Yandex credentials never leave the server.
+Authenticated browser bridge for the free Yandex Wordstat website. It returns
+the visible "Popular" and "Similar" tables as JSON and does not use the paid
+Yandex Search API.
 
 The service is designed for a GPT Action: deploy it behind HTTPS, import
 `https://YOUR_PUBLIC_HOST/openapi.json` into the GPT configuration, select API
@@ -9,22 +10,29 @@ key authentication with `Bearer` auth, and enter the value of `PROXY_API_KEY`.
 
 ## Server setup
 
-1. Copy `.env.example` to `.env` on the VPS and replace every placeholder. Never
+1. Copy `.env.example` to `.env` on the VPS and replace `PROXY_API_KEY`. Never
    commit `.env`.
-2. Ensure the Yandex service account has the `search-api.webSearch.user` role and
-   its API key has the `yc.search-api.execute` scope.
-3. Start the isolated stack:
+2. Start the isolated stack:
 
    ```bash
    docker compose up -d --build
    docker compose ps
    ```
 
-4. Merge one block from `deploy/Caddyfile.example` into the current Caddyfile,
+3. Merge one block from `deploy/Caddyfile.example` into the current Caddyfile,
    validate it, and only then reload Caddy. Do not replace the existing file.
+4. Create an SSH tunnel to the browser screen:
 
-The API port is bound to `127.0.0.1:8087`; it is not directly internet-facing.
-Redis has no published port.
+   ```bash
+   ssh -L 7901:127.0.0.1:7901 goodpapa@YOUR_VPS_IP
+   ```
+
+5. Open `http://127.0.0.1:7901/?autoconnect=1&resize=scale`, then sign in to
+   Yandex manually. The browser profile is stored in a private Docker volume.
+
+The API and browser-screen ports are bound to loopback only. Redis has no
+published port. The browser screen must never be exposed directly through
+Caddy; access it only through SSH.
 
 ## Verification
 
@@ -45,7 +53,7 @@ curl --get 'https://wordstat.mydomain.ru/top' \
 For the path-based Caddy variant, set `PUBLIC_BASE_URL` and use
 `https://mydomain.ru/api/wordstat/top` instead.
 
-Successful responses use numeric counts:
+Successful responses use numeric counts parsed from the visible Wordstat page:
 
 ```json
 {
@@ -60,8 +68,9 @@ Successful responses use numeric counts:
 }
 ```
 
-These numbers are illustrative. Capture the final example from the live Yandex
-response after deployment.
+If Yandex expires the session or requests a CAPTCHA, the API returns
+`yandex_auth_required` or `yandex_captcha_required`. Open the SSH tunnel and
+complete the requested step manually; CAPTCHA bypass is intentionally absent.
 
 ## GPT Action
 
@@ -72,7 +81,7 @@ After deployment:
 3. Configure authentication as an API key using the `Authorization` header and
    the `Bearer` authentication type.
 4. Store the server-side `PROXY_API_KEY` value in the GPT Action authentication
-   settings. Do not place `YANDEX_API_KEY` in GPT.
+   settings. Never copy the Yandex browser session into GPT.
 
 The Action operation is named `getWordstatTop` and accepts the required query
 parameter `q`.

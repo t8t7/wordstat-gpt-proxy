@@ -6,15 +6,28 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-RUN groupadd --system app && useradd --system --gid app --no-create-home app
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends \
+        chromium \
+        chromium-driver \
+        novnc \
+        websockify \
+        x11vnc \
+        xvfb \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd --system app \
+    && useradd --system --gid app --no-create-home app \
+    && mkdir -p /var/lib/wordstat-browser \
+    && chown app:app /var/lib/wordstat-browser
 
 COPY requirements.txt ./
 RUN pip install --requirement requirements.txt
 
 COPY app ./app
+COPY docker/entrypoint.sh /usr/local/bin/wordstat-entrypoint
+RUN chmod 0755 /usr/local/bin/wordstat-entrypoint
 
 USER app
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips", "127.0.0.1"]
-
+CMD ["/usr/local/bin/wordstat-entrypoint"]
